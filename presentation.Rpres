@@ -1,0 +1,67 @@
+Visualizing the Effects of Offensive and Defensive Ratings on NBA Results
+========================================================
+author: Clement Liu
+date: 6/25/2016
+
+Background
+========================================================
+
+**National Basketball Association (NBA)**
+- The ultimate objective of any game is to win, but *how* to win can be thought of as either:
+    - Focusing on offense (e.g., attempt to win by scoring as many points as possible) **OR**
+    - Focusing on defense (e.g., attempt to win by minimizing the opponent's scoring as much as possible)
+- This application creates numerical and visual representations to see a team's performance both offensively and defensively. We can spot trends and generate estimates of how the team will perform in the near future.
+
+Inspiration and Data Source
+========================================================
+
+- The inspiration for this project and the source of the data was from [Basketball-Reference](http://www.basketball-reference.com/). They are a wealth of knowledge for everything NBA-related.
+
+- In the application, "Offensive Rating" is the **<font color= "blue">blue</font>** line and the "Defensive Rating" is the **<font color= "red">red</font>** line.
+
+- Logic says that the higher the **<font color= "blue">blue</font>** line and the lower the **<font color= "red">red</font>** line the more successful the team is. The graphs support that thought, and the bigger the difference between the lines, the more extreme the team's record.
+
+Demonstration of Application
+========================================================
+
+- By selecting your team, you can see their game records and offensive/defensive ratings since 2004.
+
+- I am a fan of the LA Lakers, so that is what I will use as an example below.
+
+```{r, echo=FALSE}
+library(dplyr)
+nba <- read.csv("nba_team_records.csv")
+nba %>%
+  filter(Team == "LAL")
+```
+
+Visual Representation
+========================================================
+
+- Lastly, here is a sample of the graphs produced by the application.
+
+```{r, echo = FALSE, fig.width = 20, fig.height = 10}
+library(ggplot2)
+library(gridExtra)
+LAL <- nba %>%
+  filter(Team == "LAL")
+
+p1 <- ggplot(LAL, aes(x = as.factor(Season), y = Percentage, group = 1)) +
+          geom_line(color = "grey", size = 2) + geom_point(size = 5) + 
+          xlab("Season") + ylab("Winning Percentage") +
+          ggtitle("LAL Winning % By Season") +
+          theme_bw() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p2<- ggplot(LAL, aes(x = as.factor(Season))) +
+        geom_line(aes(y = ORtg, group = 1, color = "Offensive"), size = 2) +
+        geom_point(aes(y = ORtg), size = 5, color = "black") +
+        geom_line(aes(y = DRtg, group = 1, color = "Defensive"), size = 2) +
+        geom_point(aes(y = DRtg), size = 5, color = "black") +
+        scale_color_manual(name = "Rating Type", values = c(Offensive = "blue", Defensive = "red")) +
+        labs(x = "Season", y = "Rating", title = paste0("LAL Ratings")) +
+        theme_bw() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "bottom")
+
+grid.arrange(p1, p2, nrow = 2)
+```
